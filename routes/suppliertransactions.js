@@ -5,6 +5,10 @@ var mysql=require('mysql');
 var connection = require('../config/connection');
 var router = express.Router();
 
+var suppliertransactions= function suppliertransactions(){
+
+}
+
 
 
 

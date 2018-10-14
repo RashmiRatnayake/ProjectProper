@@ -1,6 +1,9 @@
 const express = require('express');
 const path=require('path');
+
 const bodyParser=require('body-parser');
+const passport=require('passport');
+
 
 var connection = require('./config/connection');
 
@@ -16,10 +19,14 @@ const port= process.env.PORT ||5550;
 
 app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
+app.use(passport.initialize());
+app.use(passport.session());
+
 
 
 app.use(cors());
 app.use('/users', users);
+//var Users = require('./routes/users');
 app.use('/suppliertransactions',suppliertransactions);
 app.use('/',index);
 app.listen(port);
