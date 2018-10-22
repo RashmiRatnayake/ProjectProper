@@ -92,7 +92,11 @@ router.post('/login',function (req,res) {
             expiresIn: 5000
           });
           console.log("logged in");
+
           console.log(token);
+
+          res.send({logged:true, token:token});
+
         }
         else{
           console.log("Password incorrect");
@@ -108,13 +112,7 @@ router.post('/login',function (req,res) {
 });
 
 router.post("/save", verifyToken, (req,res)=>{
-  jwt.verify(req.token,process.env.SECRET_KEY,(err,data)=>{
-    if (err){
-      res.json({msg:"Access denied"})
-    }else{
-      res.json({msg:"Data saved",data:data})
-    }
-  })
+
 
 })
 
@@ -124,8 +122,17 @@ function verifyToken(req,res,next){
     var headerToken = req.headers['authorization'].split(' ')[1];
     if (headerToken != 'undefined'){
       req.token=headerToken;
-      next();
+      jwt.verify(req.token,process.env.SECRET_KEY,(err,data)=>{
+        if (err){
+          res.json({msg:"Access denied"})
+        }else{
+          res.json({msg:"Data saved",data:data});
+          next();
+        }
+      })
+
     }else{
+
       res.json({msg:"unauthorized request"})
     }
   }else{
