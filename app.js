@@ -9,7 +9,8 @@ var connection = require('./config/connection');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
-var suppliertransactions = require('./routes/suppliertransactions');
+//var profile = require('./routes/profile');
+var transactions = require('./routes/transactions');
 var router = express.Router();
 const cors=require('cors');
 
@@ -26,8 +27,8 @@ app.use(passport.session());
 
 app.use(cors());
 app.use('/users', users);
-//var Users = require('./routes/users');
-app.use('/suppliertransactions',suppliertransactions);
+//app.use('/profile', profile);
+app.use('/transactions',transactions);
 app.use('/',index);
 app.listen(port);
 
