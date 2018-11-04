@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 var db;
 var settings = {
 
-    host:"localhost",
+    host:"127.0.0.1",
     user:"root",
     password:"mysql",
     database:"cs304projectdb"
@@ -32,7 +32,7 @@ function connectDatabase() {
                 console.log("Database connected");
             } else {
 
-                console.log("Error database connection")
+                console.log("Error database connection",err)
             }
         })
         return db;

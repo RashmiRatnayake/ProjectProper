@@ -79,7 +79,7 @@ router.post('/login',function (req,res) {
         console.log("Not a registered user");
       }
       else{
-        console.log(results[0]);
+        //console.log(results[0]);
         var result=bcrypt.compareSync(password, results[0].password);
         console.log(result);
 
