@@ -24,7 +24,7 @@ router.get('/profile',verifyToken, (req,res)=>{
     }
     connection.query("select u.*,a.* from user u join UserAttributes a on u.userId = a.User_userId where userId= ?",[userId],function (err,results, fields) {
       if(results){
-        console.log("type is :" ,typeof results[0]);
+        console.log(results[0]);
 
         var user={
           userId : results[0].userId,
@@ -41,3 +41,4 @@ router.get('/profile',verifyToken, (req,res)=>{
 
 });
 });
+

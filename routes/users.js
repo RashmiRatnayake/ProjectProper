@@ -17,7 +17,7 @@ process.env.SECRET_KEY="secret_key";
 
 
 router.post('/register',function (req,res) {
-  console.log("lets take userdata");
+  
   const userdata = {
 
       //status:req.body.status,
@@ -39,14 +39,14 @@ const userattributesdata={
   };
 
 
-  console.log(req.body);
+
   var salt = bcrypt.genSaltSync(10);
   var hash = bcrypt.hashSync(userdata.password, salt);
   userdata.password=hash;
-  console.log(hash);
+
 
       connection.query("INSERT INTO User SET ?", userdata,function (err,result) {
-        console.log(result);
+    
         if(result){
           let sql = "INSERT INTO UserAttributes (businessName, contactNo, description,User_userId, createdDate, modifiedDate) values(?)"
           let vals = [userattributesdata.businessName,userattributesdata.contactNo,userattributesdata.description,result.insertId,userattributesdata.createdDate,userattributesdata.modifiedDate]
@@ -67,7 +67,7 @@ const userattributesdata={
 });
 
 router.post('/login',function (req,res) {
-  console.log("hello");
+  
   var email = req.body.inputEmail;
   var password = req.body.inputPassword;
   connection.query("select u.*,a.businessName from user u join UserAttributes a on u.userId = a.User_userId where email= ?",[email],function (err,results, fields) {
@@ -155,7 +155,7 @@ router.get('/profile',verifyToken, (req,res)=>{
 
           };
         //if(err) console.log("Not a registered user");console.log(results);
-        console.log(user);
+      
           //res.json({user:res.user});
           //console.trace(err);
           //connection.end();
@@ -222,6 +222,24 @@ database.connection.getConnection(function(err, connection) {
  });
 });
 */
+
+router.get('/my-full-profile',verifyToken, (req,res)=>{
+
+  var token = headerUtil.extractTokenFromHeader(req)
+  if(token!=null){
+    var userId = util.getUserIdFromToken(token)
+  }
+  connection.query("select u.*,a.* from user u join UserAttributes a on u.userId = a.User_userId where userId= ?",[userId],function (err,results, fields) {
+    if(results){
+      res.json({user:results[0]});
+
+  }
+
+});
+});
+
+
+
 
 
 module.exports = router;
