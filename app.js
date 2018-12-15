@@ -12,6 +12,7 @@ var users = require('./routes/users');
 //var profile = require('./routes/profile');
 var transactions = require('./routes/transactions');
 var posts = require('./routes/posts');
+var circle = require('./routes/circle');
 var router = express.Router();
 const cors=require('cors');
 
@@ -31,6 +32,7 @@ app.use('/users', users);
 //app.use('/profile', profile);
 app.use('/transactions',transactions);
 app.use('/posts',posts);
+app.use('/circle',circle);
 app.use('/',index);
 app.listen(port);
 
