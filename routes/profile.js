@@ -13,32 +13,27 @@ var util = require('../util/util')
 
 router.use(cors());
 
-
+process.env.SECRET_KEY="secret_key";
 
 
 router.get('/profile',verifyToken, (req,res)=>{
-
+  
     var token = headerUtil.extractTokenFromHeader(req)
     if(token!=null){
       var userId = util.getUserIdFromToken(token)
     }
     connection.query("select u.*,a.* from user u join UserAttributes a on u.userId = a.User_userId where userId= ?",[userId],function (err,results, fields) {
       if(results){
-        console.log(results[0]);
-
-        var user={
-          userId : results[0].userId,
-          email: results[0].email,
-          userType:results[0].userType,
-          businessName: results[0].businessName
-
-        };
-      //if(err) console.log("Not a registered user");console.log(results);
-
-        res.json({user:user});
-
+        res.json({user:results[0]});
+  
     }
+  
+  });
+  });
 
-});
-});
+
+
+
+
+module.exports = router;
 
