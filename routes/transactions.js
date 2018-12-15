@@ -24,7 +24,7 @@ router.get('/my-transactions',verifyToken, (req,res)=>{
   }
   connection.query("select * from transactionrecord where dealer= ? OR supplier= ?",[userId,userId],function (err,results, fields) {
     if(results){
-      console.log(results);
+      //console.log(results);
       res.json({transaction:results});
 
   }
@@ -38,25 +38,4 @@ router.get('/my-transactions',verifyToken, (req,res)=>{
 
 module.exports = router;
 
-/* var transactions= function transactions(){
 
-  connection.query("select * from transactionRecord  where email= ?",[email],function (err,results, fields) {
-
-    //if(err) console.log("Not a registered user");console.log(results);
-
-    if(results){
-      if (results[0]==undefined){
-        console.log("Not a registered user");
-      }
-      else{
-        console.log(results[0]);
-        var result=bcrypt.compareSync(password, results[0].password);
-        console.log(result);
-
-
-}}});
-}
-
-
-
-module.exports=transactions; */
