@@ -10,61 +10,58 @@ var token;
 var verifyToken = require('../config/verifyToken')
 var headerUtil = require('../util/headerUtil')
 var util = require('../util/util')
+var uuid = require('../routes/uuid');
 
 router.use(cors());
 
 process.env.SECRET_KEY="secret_key";
 
 
-router.post('/register',function (req,res) {
-  
+
+
+router.post('/register',function (req,res) { 
   const userdata = {
-
-      //status:req.body.status,
-      status:1,
-      email:req.body.form_email,
-      createdDate: new Date(),
-      lastModifiedDate:new Date(),
-      userType:req.body.opt,
-      password:req.body.password
-
-
+    userId:uuid,
+    status:1,
+    email:req.body.form_email,
+    createdDate: new Date(),
+    lastModifiedDate:new Date(),
+    userType:req.body.opt,
+    password:req.body.password
   };
-const userattributesdata={
+  const userattributesdata={
+    attributesId:uuid,
     createdDate:userdata.createdDate,
     modifiedDate:new Date(),
     businessName:req.body.CompanyName,
     contactNo:req.body.tp,
     description:req.body.form_about_yourself
   };
-
-
-
+ // console.log(userdata.userId);
   var salt = bcrypt.genSaltSync(10);
   var hash = bcrypt.hashSync(userdata.password, salt);
   userdata.password=hash;
 
 
-      connection.query("INSERT INTO User SET ?", userdata,function (err,result) {
+  connection.query("INSERT INTO User SET ?", userdata,function (err,result) {
     
-        if(result){
-          let sql = "INSERT INTO UserAttributes (businessName, contactNo, description,User_userId, createdDate, modifiedDate) values(?)"
-          let vals = [userattributesdata.businessName,userattributesdata.contactNo,userattributesdata.description,result.insertId,userattributesdata.createdDate,userattributesdata.modifiedDate]
+    if(result){
+      let sql = "INSERT INTO UserAttributes (User_userid, attributesId, businessName, contactNo, description,User_userId, createdDate, modifiedDate) values(?)"
+      let vals = [userdata.userId, userattributesdata.attributesId,userattributesdata.businessName,userattributesdata.contactNo,userattributesdata.description,result.insertId,userattributesdata.createdDate,userattributesdata.modifiedDate]
 
-          connection.query(sql,[vals], function (err,result){
-                if(err){
-                  //console.log(err);
-                  res.json({state:false,msg:"data not inserted"})
-                }
-                else{
-                  res.json({state:true,msg:"data inserted"});
-
-                }
-              });
-            }
-            //connection.release();
-          });
+      connection.query(sql,[vals], function (err,result){
+        if(err){
+          res.json({state:false,msg:"data not inserted"})
+        }
+        else{
+          res.json({state:true,msg:"data inserted"});
+        }
+      });
+    }   
+  });
 });
+
+
 
 router.post('/login',function (req,res) {
   
@@ -72,14 +69,11 @@ router.post('/login',function (req,res) {
   var password = req.body.inputPassword;
   connection.query("select u.*,a.businessName from user u join UserAttributes a on u.userId = a.User_userId where email= ?",[email],function (err,results, fields) {
 
-    //if(err) console.log("Not a registered user");console.log(results);
-
     if(results){
       if (results[0]==undefined){
         console.log("Not a registered user");
       }
       else{
-        //console.log(results[0]);
         var result=bcrypt.compareSync(password, results[0].password);
         console.log(result);
 
@@ -94,19 +88,10 @@ router.post('/login',function (req,res) {
 
           };
 
-          //email password correct
-          //create jwt token
-          //send to client
-
           token=jwt.sign(results, process.env.SECRET_KEY, {
             expiresIn: 5000
           });
-          console.log("logged in");
-
-
-
-          console.log(token);
-
+          
           res.send({logged:true, token:token});
 
         }
@@ -116,69 +101,45 @@ router.post('/login',function (req,res) {
       }
 
     }
-    //connection.release();
-
+    
   });
 });
 
+
 router.post("/save", verifyToken, (req,res)=>{
-
-    var token = headerUtil.extractTokenFromHeader(req)
-    if(token!=null){
-      var userId = util.getUserIdFromToken(token)
-    }
-
+  var token = headerUtil.extractTokenFromHeader(req)
+  if(token!=null){
+    var userId = util.getUserIdFromToken(token)
+  }
 });
 
 
 router.get('/profile',verifyToken, (req,res)=>{
 
-    var token = headerUtil.extractTokenFromHeader(req);
-    //console.log(token);
-    if(token!=null){
-      var userId = util.getUserIdFromToken(token);
-    }
+  var token = headerUtil.extractTokenFromHeader(req);
+  if(token!=null){
+    var userId = util.getUserIdFromToken(token);
+  }
 
-      connection.query("select u.*,a.* from user u join UserAttributes a on u.userId = a.User_userId where userId= ?",[userId],function (err,results, fields) {
-      //  console.log("baaa");
-
-        if(results){
-          //console.log("type is :" ,typeof results[0]);
-          //console.log(results[0]);
-
-          var user={
-            userId : results[0].userId,
-            email: results[0].email,
-            userType:results[0].userType,
-            businessName: results[0].businessName,
-            tagline: results[0].tagline
-
-          };
-        //if(err) console.log("Not a registered user");console.log(results);
+  connection.query("select u.*,a.* from user u join UserAttributes a on u.userId = a.User_userId where userId= ?",[userId],function (err,results, fields) {
       
-          //res.json({user:res.user});
-          //console.trace(err);
-          //connection.end();
-          //console.log("bbb");
-            res.status(200).send(user);
-            res.end();
-      }
+    if(results){
+      var user={
+        userId : results[0].userId,
+        email: results[0].email,
+        userType:results[0].userType,
+        businessName: results[0].businessName,
+        tagline: results[0].tagline
 
-
+      };
+    
+      res.status(200).send(user);
+      res.end();
+    }
 
   });
 
-
-
-    //console.log(userId);
-
-
 });
-
-
-
-
-
 
 
 module.exports = router;

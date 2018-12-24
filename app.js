@@ -7,6 +7,7 @@ let nodemailer = require("nodemailer");
 
 
 var connection = require('./config/connection');
+var uuid = require('./routes/uuid');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
@@ -16,6 +17,7 @@ var posts = require('./routes/posts');
 var circle = require('./routes/circle');
 var news = require('./routes/news');
 var messages = require('./routes/messages');
+var userlist = require('./routes/userlist');
 var notifications = require('./routes/notifications');
 var router = express.Router();
 const cors=require('cors');
@@ -41,6 +43,7 @@ app.use('/posts',posts);
 app.use('/circle',circle);
 app.use('/news',news);
 app.use('/messages',messages);
+app.use('/userlist',userlist);
 //app.use('/news',notifications);
 app.use('/',index);
 app.listen(port);

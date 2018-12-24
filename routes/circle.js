@@ -22,11 +22,12 @@ router.get('/my-circle',verifyToken, (req,res)=>{
   if(token!=null){
     var userId = util.getUserIdFromToken(token)
   }
-  connection.query("select * from subscription where subscriber= ? OR subscribeto= ?",[userId,userId],function (err,results, fields) {
+  connection.query("SELECT subscribeto, businessName FROM subscription S JOIN userattributes U ON S.subscribeto = U.User_userId AND subscriber = ?",userId,function (err,results, fields) {
     if(results){
-      //console.log(results);
+      console.log(results);
+    
       res.json({circle:results});
-
+      
   }
 
 });

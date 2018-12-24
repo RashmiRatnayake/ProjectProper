@@ -3,6 +3,7 @@ var app = express();
 var mysql=require('mysql');
 const bcrypt = require('bcryptjs');
 var connection = require('../config/connection');
+var uuid = require('../routes/uuid');
 var router = express.Router();
 var cors = require('cors')
 var jwt = require('jsonwebtoken');
@@ -35,7 +36,7 @@ router.get('/my-transactions',verifyToken, (req,res)=>{
 router.post('/addnew',function (req,res) {
   
   const newtransactiondata = {
-
+      trnId:uuid,
       otherParty:req.body.otherParty,
       status:1,
       amountSettled:req.body.amountSettled,
@@ -45,9 +46,6 @@ router.post('/addnew',function (req,res) {
       trnStatus:req.body.trnStatus,
       amountPending:req.body.amountPending,
       remarks:req.body.remarks,
-
-     // userType:req.body.opt,
-      
       trnDescription:req.body.trnDescription,
       totalAmount:req.body.totalAmount,
       supplier:req.body.supplier
@@ -59,12 +57,11 @@ router.post('/addnew',function (req,res) {
         // connection.query("INSERT INTO transactionrecord SET ?", newtransactiondata,function (err,result) {
     
        // if(result){
-        let sql = "INSERT INTO transactionrecord (supplier,dealer,status,amountPending, totalAmount, amountSettled,trnStatus, trnDate, modifiedDate,dueDate,trnDescription,remarks) values(?)"
-        let vals = [supplierId,newtransactiondata.dealer,newtransactiondata.status,newtransactiondata.amountPending,newtransactiondata.totalAmount,newtransactiondata.amountSettled,newtransactiondata.trnStatus,newtransactiondata.trnDate,newtransactiondata.modifiedDate,newtransactiondata.dueDate,newtransactiondata.trnDescription,newtransactiondata.remarks]
+        let sql = "INSERT INTO transactionrecord (trnId,supplier,dealer,status,amountPending, totalAmount, amountSettled,trnStatus, trnDate, modifiedDate,dueDate,trnDescription,remarks) values(?)"
+        let vals = [newtransactiondata.trnId,supplierId,newtransactiondata.dealer,newtransactiondata.status,newtransactiondata.amountPending,newtransactiondata.totalAmount,newtransactiondata.amountSettled,newtransactiondata.trnStatus,newtransactiondata.trnDate,newtransactiondata.modifiedDate,newtransactiondata.dueDate,newtransactiondata.trnDescription,newtransactiondata.remarks]
 
         connection.query(sql,[vals], function (err,result){
               if(err){
-                //console.log(err);
                 res.json({state:false,msg:"data not inserted"})
               }
               else{
