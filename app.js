@@ -53,7 +53,7 @@ app.listen(port);
 //console.log('Magic happens on port ' + port);
 
     //job for due today....................................................................
-    //const job = new CronJob('0 */1 0-24 * * *', function() {//for testing /sec,min,hrs,day(month),month,day(week)
+   // const job = new CronJob('0 */1 0-24 * * *', function() {//for testing /sec,min,hrs,day(month),month,day(week)
     const job = new CronJob('0 0 */24 * * *', function() {//proper one
     const d = new Date();
    
@@ -110,8 +110,8 @@ app.listen(port);
             let mailOptions = {
               from: "creatoremail12345@gmail.com",
               to: supplieremail,
-              subject: `Payment to be received today from `+dealername,
-              text: `Hi `+suppliername+' A payment of Rs.'+data.amountPending+' is due to be received from '+dealername+' today.'
+              subject: ` Payment to be received today from `+dealername,
+              text: `Hi `+suppliername+'! A payment of Rs.'+data.amountPending+' is due to be received from '+dealername+' today.'
             };
             transporter.sendMail(mailOptions, function(error, info) {
               if (error) {
@@ -124,8 +124,8 @@ app.listen(port);
             let mailOptions2 = {
               from: "creatoremail12345@gmail.com",
               to: dealeremail,
-              subject: `Payment to be paid today to `+suppliername,
-              text: `Hi `+dealername+' A payment of Rs.'+data.amountPending+' is due to be paid to '+suppliername+'today.'
+              subject: ` Payment to be paid today to `+suppliername,
+              text: `Hi `+dealername+'! A payment of Rs.'+data.amountPending+' is due to be paid to '+suppliername+'today.'
             };
             transporter.sendMail(mailOptions2, function(error, info) {
               if (error) {
@@ -170,7 +170,123 @@ job.start();
 
 //.........................................................................................
 
-
+//job for due in 3 daystime ....................................................................
+    //const job2 = new CronJob('0 */1 0-24 * * *', function() {//for testing /sec,min,hrs,day(month),month,day(week)
+    const job2 = new CronJob('0 1 */24 * * *', function() {//proper one
+      const d = new Date();
+     
+      connection.query("select * from transactionrecord where duedate=DATE_ADD(DATE(?), INTERVAL 3 DAY) AND (trnStatus='Unpaid' or trnStatus='partially paid') ",[d],function (err,results, fields) { 
+       if(results){
+            console.log("due in 3 days");
+           // console.log(results);
+          for (var result in results){
+            //console.log(results[result]);
+  
+            var supplierid=results[result].supplier; 
+            var dealerid=results[result].dealer;
+            var suppliername;
+            var dealername;
+            var supplieremail;
+            var dealeremail;
+            //console.log(supplierid)
+            connection.query("select businessName,contactEmail from userattributes where User_userid=?",[supplierid],function (err,supplier, fields) {
+             if(supplier){
+              suppliername=supplier[0].businessName;
+              supplieremail=supplier[0].contactEmail;
+              //console.log(suppliername);
+              connection.query("select businessName,contactEmail from userattributes where User_userid=?",[dealerid],function (err,dealer, fields) {
+                if(dealer){
+              
+                dealername=dealer[0].businessName;
+                dealeremail=dealer[0].contactEmail;
+                //console.log(dealername);
+  
+                const data = {
+                  notificationId:uuid,
+                  trnId:results[result].trnId,
+                  supplier:results[result].supplier,
+                  dealer:results[result].dealer,
+                  status:1,
+                  amountPending:results[result].amountPending,
+                  dateToday: d,
+                  due:"in 3 days",
+                  suppliername:suppliername,
+                  dealername:dealername
+      
+              };  
+              console.log(data);
+  
+              // create mail transporter
+              let transporter = nodemailer.createTransport(smtpTransport({
+              service: "gmail",
+              auth: {
+               user: "creatoremail12345@gmail.com",
+               pass: "creat123$"
+               }
+              }));
+  
+              let mailOptions = {
+                from: "creatoremail12345@gmail.com",
+                to: supplieremail,
+                subject: ` Payment to be received within 3 days from `+dealername,
+                text: `Hi `+suppliername+'! A payment of Rs.'+data.amountPending+' is due to be received from '+dealername+' within 3 days.'
+              };
+              transporter.sendMail(mailOptions, function(error, info) {
+                if (error) {
+                  throw error;
+                } else {
+                  console.log("Email successfully sent!");
+                }
+              });
+  
+              let mailOptions2 = {
+                from: "creatoremail12345@gmail.com",
+                to: dealeremail,
+                subject: ` Payment to be paid within 3 days to `+suppliername,
+                text: `Hi `+dealername+'! A payment of Rs.'+data.amountPending+' is due to be paid to '+suppliername+'within 3 days.'
+              };
+              transporter.sendMail(mailOptions2, function(error, info) {
+                if (error) {
+                  throw error;
+                } else {
+                  console.log("Email successfully sent!");
+                }
+              });
+  
+              let sql = "INSERT INTO notification (notificationId,trnId,supplier,dealer,status,amountPending, dateToday, due,suppliername,dealername) values(?)"
+              let vals = [data.notificationId,data.trnId,data.supplier,data.dealer,data.status,data.amountPending,data.dateToday,data.due,data.suppliername,data.dealername]
+        
+              connection.query(sql,[vals], function (err,result){
+                    if(err){ 
+                    }
+                    else{
+                      console.log("notification inserted");
+                }
+              });
+  
+  
+  
+  
+                }
+               });
+  
+             }
+            });
+            
+            
+           
+            
+          }
+  
+           
+            
+        } 
+      });
+    
+  });
+  job2.start();
+  
+  //.........................................................................................
 
 
 

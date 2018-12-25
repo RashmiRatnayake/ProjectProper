@@ -23,7 +23,7 @@ router.get('/my-transactions',verifyToken, (req,res)=>{
   if(token!=null){
     var userId = util.getUserIdFromToken(token)
   }
-  connection.query("select * from transactionrecord where dealer= ? OR supplier= ?",[userId,userId],function (err,results, fields) {
+  connection.query("select * from transactionrecord where dealer= ? OR supplier= ? ORDER BY CASE trnStatus WHEN 'Unpaid' THEN 1 WHEN 'partially paid' THEN 2 ELSE 3 END ",[userId,userId],function (err,results, fields) {
     if(results){
       //console.log(results);
       res.json({transaction:results});
@@ -39,9 +39,9 @@ router.get('/mypendingtransactions',verifyToken, (req,res)=>{
     if(token!=null){
       var userId = util.getUserIdFromToken(token)
     }
-    connection.query("select * from transactionrecord where (dealer= ? OR supplier= ?) AND (trnStatus='Unpaid' ortrnStatus='partially paid')",[userId,userId],function (err,results, fields) {
+    connection.query("select * from transactionrecord where (dealer= ? OR supplier= ?) AND (trnStatus='Unpaid' or trnStatus='partially paid') ORDER BY CASE trnStatus WHEN 'Unpaid' THEN 1 ELSE 2 END",[userId,userId],function (err,results, fields) {
       if(results){
-        //console.log(results);
+        console.log(results);
         res.json({pendingtransaction:results});
   
     }
