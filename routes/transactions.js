@@ -33,7 +33,25 @@ router.get('/my-transactions',verifyToken, (req,res)=>{
 });
 });
 
+router.get('/mypendingtransactions',verifyToken, (req,res)=>{
+  
+    var token = headerUtil.extractTokenFromHeader(req)
+    if(token!=null){
+      var userId = util.getUserIdFromToken(token)
+    }
+    connection.query("select * from transactionrecord where (dealer= ? OR supplier= ?) AND (trnStatus='Unpaid' ortrnStatus='partially paid')",[userId,userId],function (err,results, fields) {
+      if(results){
+        //console.log(results);
+        res.json({pendingtransaction:results});
+  
+    }
+  
+  });
+  });
+
 router.post('/addnew',function (req,res) {
+
+
   
   const newtransactiondata = {
       trnId:uuid,
@@ -53,29 +71,36 @@ router.post('/addnew',function (req,res) {
 
   };
   console.log(newtransactiondata);
-      connection.query("SELECT userId from user where businessName=?",newtransactiondata.supplier,function(err,supplierId){
-        // connection.query("INSERT INTO transactionrecord SET ?", newtransactiondata,function (err,result) {
-    
-       // if(result){
-        let sql = "INSERT INTO transactionrecord (trnId,supplier,dealer,status,amountPending, totalAmount, amountSettled,trnStatus, trnDate, modifiedDate,dueDate,trnDescription,remarks) values(?)"
-        let vals = [newtransactiondata.trnId,supplierId,newtransactiondata.dealer,newtransactiondata.status,newtransactiondata.amountPending,newtransactiondata.totalAmount,newtransactiondata.amountSettled,newtransactiondata.trnStatus,newtransactiondata.trnDate,newtransactiondata.modifiedDate,newtransactiondata.dueDate,newtransactiondata.trnDescription,newtransactiondata.remarks]
+      
+  connection.query("select User_userid from userAttributes where businessName= ?",[newtransactiondata.otherParty],function (err,results, fields) {
+    if(results){
+      var dealer;
+      dealer=results[0].User_userid;
+      //console.log(results);
 
-        connection.query(sql,[vals], function (err,result){
-              if(err){
-                res.json({state:false,msg:"data not inserted"})
-              }
-              else{
-                res.json({state:true,msg:"data inserted"});
+      let sql = "INSERT INTO transactionrecord (trnId,supplier,dealer,status,amountPending, totalAmount, amountSettled,trnStatus, trnDate, modifiedDate,dueDate,trnDescription,remarks) values(?)"
+      let vals = [newtransactiondata.trnId,newtransactiondata.supplier,dealer,newtransactiondata.status,newtransactiondata.amountPending,newtransactiondata.totalAmount,newtransactiondata.amountSettled,newtransactiondata.trnStatus,newtransactiondata.trnDate,newtransactiondata.modifiedDate,newtransactiondata.dueDate,newtransactiondata.trnDescription,newtransactiondata.remarks]
 
-           //   }
-          //  });
-          }
-          //connection.release();
-        });
+      connection.query(sql,[vals], function (err,result){
+            if(err){
+              res.json({state:false,msg:"data not inserted"})
+            }
+            else{
+              res.json({state:true,msg:"data inserted"});
+
+       
+        }
+        
+      });
+
+  }
+
+});
+       
       
       });
    
-});
+
 
 
 

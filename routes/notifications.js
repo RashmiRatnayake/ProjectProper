@@ -1,26 +1,41 @@
 const express=require('express');
 var app = express();
 var mysql=require('mysql');
+const bcrypt = require('bcryptjs');
 var connection = require('../config/connection');
+var router = express.Router();
+var cors = require('cors')
+var jwt = require('jsonwebtoken');
+var token;
+var verifyToken = require('../config/verifyToken')
+var headerUtil = require('../util/headerUtil')
+var util = require('../util/util')
 
-const CronJob = require('../node_modules/cron/lib/cron.js').CronJob;
+router.use(cors());
+
+process.env.SECRET_KEY="secret_key";
 
 
-
-function sendNotifications() {
-//console.log('Before job instantiation');
-/* const job = new CronJob('0 /3 10-12 * * *', function() {
-    const d = new Date();
-    connection.query("select * from transactionrecord",function (err,results, fields) {
+router.get('/my-notifications-today',verifyToken, (req,res)=>{
+    
+      var token = headerUtil.extractTokenFromHeader(req)
+      if(token!=null){
+        var userId = util.getUserIdFromToken(token)
+      }
+      var day=new Date();
+      connection.query("select * from notification where (supplier=? OR dealer= ?) AND due='today' AND DATE(dateToday)=DATE(?)",[userId,userId,day],function (err,results, fields) {
         if(results){
-          console.log(results);
-          //res.json({transaction:results});
-      } 
-    });
-	//console.log('Every 30 minutes between 9-17:', d);
-});
-//console.log('After job instantiation');
-job.start(); */
-}
+            //console.log(results);
 
-module.exports=sendNotifications();
+          res.json({notificationToday:results});
+    
+        }
+    
+    });
+    });
+
+
+
+
+
+module.exports = router;

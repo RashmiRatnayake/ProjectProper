@@ -4,6 +4,7 @@ const path=require('path');
 const bodyParser=require('body-parser');
 const passport=require('passport');
 let nodemailer = require("nodemailer");
+var smtpTransport = require('nodemailer-smtp-transport');
 
 
 var connection = require('./config/connection');
@@ -44,47 +45,132 @@ app.use('/circle',circle);
 app.use('/news',news);
 app.use('/messages',messages);
 app.use('/userlist',userlist);
-//app.use('/news',notifications);
+app.use('/notifications',notifications);
 app.use('/',index);
 app.listen(port);
 
 
 //console.log('Magic happens on port ' + port);
-// create mail transporter
-let transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: "creatoremail12345@gmail.com",
-      pass: "creat123$"
-    }
-  });
 
-    //const job = new CronJob('0 */1 12-22 * * *', function() {//for testing /sec,min,hrs,day(month),month,day(week)
+    //job for due today....................................................................
+    //const job = new CronJob('0 */1 0-24 * * *', function() {//for testing /sec,min,hrs,day(month),month,day(week)
     const job = new CronJob('0 0 */24 * * *', function() {//proper one
     const d = new Date();
    
-    connection.query("select * from transactionrecord where duedate=DATE(?) ",[d],function (err,results, fields) { 
+    connection.query("select * from transactionrecord where duedate=DATE(?) AND (trnStatus='Unpaid' or trnStatus='partially paid') ",[d],function (err,results, fields) { 
      if(results){
-          console.log(results);
-          let mailOptions = {
-            from: "creatoremail12345@gmail.com",
-            to: "rashmi1rathnayake@gmail.com",
-            subject: `Not a GDPR update ;)`,
-            text: `Hi there, this email was automatically sent by us`
-          };
-          transporter.sendMail(mailOptions, function(error, info) {
-            if (error) {
-              throw error;
-            } else {
-              console.log("Email successfully sent!");
-            }
+          console.log("duetoday");
+         // console.log(results);
+        for (var result in results){
+          //console.log(results[result]);
+
+          var supplierid=results[result].supplier; 
+          var dealerid=results[result].dealer;
+          var suppliername;
+          var dealername;
+          var supplieremail;
+          var dealeremail;
+          //console.log(supplierid)
+          connection.query("select businessName,contactEmail from userattributes where User_userid=?",[supplierid],function (err,supplier, fields) {
+           if(supplier){
+            suppliername=supplier[0].businessName;
+            supplieremail=supplier[0].contactEmail;
+            //console.log(suppliername);
+            connection.query("select businessName,contactEmail from userattributes where User_userid=?",[dealerid],function (err,dealer, fields) {
+              if(dealer){
+            
+              dealername=dealer[0].businessName;
+              dealeremail=dealer[0].contactEmail;
+              //console.log(dealername);
+
+              const data = {
+                notificationId:uuid,
+                trnId:results[result].trnId,
+                supplier:results[result].supplier,
+                dealer:results[result].dealer,
+                status:1,
+                amountPending:results[result].amountPending,
+                dateToday: d,
+                due:"today",
+                suppliername:suppliername,
+                dealername:dealername
+    
+            };  
+            console.log(data);
+
+            // create mail transporter
+            let transporter = nodemailer.createTransport(smtpTransport({
+            service: "gmail",
+            auth: {
+             user: "creatoremail12345@gmail.com",
+             pass: "creat123$"
+             }
+            }));
+
+            let mailOptions = {
+              from: "creatoremail12345@gmail.com",
+              to: supplieremail,
+              subject: `Payment to be received today from `+dealername,
+              text: `Hi `+suppliername+' A payment of Rs.'+data.amountPending+' is due to be received from '+dealername+' today.'
+            };
+            transporter.sendMail(mailOptions, function(error, info) {
+              if (error) {
+                throw error;
+              } else {
+                console.log("Email successfully sent!");
+              }
+            });
+
+            let mailOptions2 = {
+              from: "creatoremail12345@gmail.com",
+              to: dealeremail,
+              subject: `Payment to be paid today to `+suppliername,
+              text: `Hi `+dealername+' A payment of Rs.'+data.amountPending+' is due to be paid to '+suppliername+'today.'
+            };
+            transporter.sendMail(mailOptions2, function(error, info) {
+              if (error) {
+                throw error;
+              } else {
+                console.log("Email successfully sent!");
+              }
+            });
+
+            let sql = "INSERT INTO notification (notificationId,trnId,supplier,dealer,status,amountPending, dateToday, due,suppliername,dealername) values(?)"
+            let vals = [data.notificationId,data.trnId,data.supplier,data.dealer,data.status,data.amountPending,data.dateToday,data.due,data.suppliername,data.dealername]
+      
+            connection.query(sql,[vals], function (err,result){
+                  if(err){ 
+                  }
+                  else{
+                    console.log("notification inserted");
+              }
+            });
+
+
+
+
+              }
+             });
+
+           }
           });
-          //res.json({transaction:results});
+          
+          
+         
+          
+        }
+
+         
+          
       } 
     });
 	
 });
 job.start();
+
+//.........................................................................................
+
+
 
 
 
