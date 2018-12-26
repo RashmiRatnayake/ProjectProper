@@ -48,18 +48,44 @@ process.env.SECRET_KEY="secret_key";
               
               var day=new Date();
               //console.log(day);
-              connection.query("select * from notification where (supplier=? OR dealer= ?) AND due='today' AND DATE(dateToday)=DATE(?)",[userId,userId,day],function (err,results, fields) {
-                if(results){
+              connection.query("select * from notification where (supplier=? OR dealer= ?) AND due='today' AND DATE(dateToday)=DATE(?)",[userId,userId,day],function (err,resul, fields) {
+                if(resul){
                     //console.log("due today")
-                    console.log(results);
+                    console.log(resul);
         
-                  res.json({notificationToday:results});
+                  res.json({notificationToday:resul});
             
                 }
             
             });
              }
             });
+
+
+            router.get('/my-notifications-late',verifyToken, (req,res)=>{
+                
+                  var token = headerUtil.extractTokenFromHeader(req)
+                  //console.log("token is",token)
+                  if(token!=null){
+                    var userId = util.getUserIdFromToken(token)
+                    //console.log("userID is",userId)
+                  
+                  var day=new Date();
+                  //console.log(day);
+                  connection.query("select * from notification where (supplier=? OR dealer= ?) AND due='late' AND DATE(dateToday)=DATE(?)",[userId,userId,day],function (err,result, fields) {
+                    if(result){
+                        console.log("late")
+                        console.log(result);
+            
+                      res.json({notificationLate:result});
+                
+                    }
+                
+                });
+                 }
+                });
+
+
 
 
 

@@ -24,7 +24,7 @@ router.get('/my-circle',verifyToken, (req,res)=>{
   }
   connection.query("SELECT subscribeto, businessName FROM subscription S JOIN userattributes U ON S.subscribeto = U.User_userId AND subscriber = ?",userId,function (err,results, fields) {
     if(results){
-      console.log(results);
+      //console.log(results);
     
       res.json({circle:results});
       

@@ -41,7 +41,7 @@ router.get('/mypendingtransactions',verifyToken, (req,res)=>{
     }
     connection.query("select * from transactionrecord where (dealer= ? OR supplier= ?) AND (trnStatus='Unpaid' or trnStatus='partially paid') ORDER BY CASE trnStatus WHEN 'Unpaid' THEN 1 ELSE 2 END",[userId,userId],function (err,results, fields) {
       if(results){
-        console.log(results);
+        //console.log(results);
         res.json({pendingtransaction:results});
   
     }
@@ -70,7 +70,7 @@ router.post('/addnew',function (req,res) {
 
 
   };
-  console.log(newtransactiondata);
+  //console.log(newtransactiondata);
       
   connection.query("select User_userid from userAttributes where businessName= ?",[newtransactiondata.otherParty],function (err,results, fields) {
     if(results){
