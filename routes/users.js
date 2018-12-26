@@ -46,11 +46,13 @@ router.post('/register',function (req,res) {
   connection.query("INSERT INTO User SET ?", userdata,function (err,result) {
     
     if(result){
-      let sql = "INSERT INTO UserAttributes (User_userid, attributesId, businessName, contactNo, description,User_userId, createdDate, modifiedDate) values(?)"
-      let vals = [userdata.userId, userattributesdata.attributesId,userattributesdata.businessName,userattributesdata.contactNo,userattributesdata.description,result.insertId,userattributesdata.createdDate,userattributesdata.modifiedDate]
+      console.log(result);
+      let sql = "INSERT INTO UserAttributes (User_userid, attributesId, businessName, contactNo, description, createdDate, modifiedDate) values(?)"
+      let vals = [userdata.userId, userattributesdata.attributesId,userattributesdata.businessName,userattributesdata.contactNo,userattributesdata.description,userattributesdata.createdDate,userattributesdata.modifiedDate]
 
       connection.query(sql,[vals], function (err,result){
         if(err){
+          console.log(err)
           res.json({state:false,msg:"data not inserted"})
         }
         else{

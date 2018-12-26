@@ -49,6 +49,28 @@ router.get('/mypendingtransactions',verifyToken, (req,res)=>{
   });
   });
 
+  router.get('/viewHistory',verifyToken, (req,res)=>{
+    console.log(req.query.trnId)
+    
+    
+      var token = headerUtil.extractTokenFromHeader(req)
+      if(token!=null){
+        var userId = util.getUserIdFromToken(token)
+      }
+      console.log(userId)
+
+      var trnId=req.query.trnId;
+      console.log(trnId);
+      connection.query("select * from updateHistory where trnId= ? ORDER BY modifiedDate DESC ",[trnId],function (err,results, fields) {
+        if(results){
+          //console.log(results);
+          res.json({history:results});
+    
+      }
+    
+    });
+    });
+
 router.post('/addnew',function (req,res) {
 
 
@@ -81,7 +103,7 @@ router.post('/addnew',function (req,res) {
       let sql = "INSERT INTO transactionrecord (trnId,supplier,dealer,status,amountPending, totalAmount, amountSettled,trnStatus, trnDate, modifiedDate,dueDate,trnDescription,remarks) values(?)"
       let vals = [newtransactiondata.trnId,newtransactiondata.supplier,dealer,newtransactiondata.status,newtransactiondata.amountPending,newtransactiondata.totalAmount,newtransactiondata.amountSettled,newtransactiondata.trnStatus,newtransactiondata.trnDate,newtransactiondata.modifiedDate,newtransactiondata.dueDate,newtransactiondata.trnDescription,newtransactiondata.remarks]
 
-      connection.query(sql,[vals], function (err,result){
+      connection.query(sql,[vals,], function (err,result){
             if(err){
               res.json({state:false,msg:"data not inserted"})
             }
@@ -102,23 +124,68 @@ router.post('/addnew',function (req,res) {
    
 
       
-router.post('/delete',function (req,res) {
-  
-        var trnId=req.body.trnId;
-  
+router.post('/update',function (req,res) {
+  console.log(req.body)
+        //var trnId=req.body.trnId;
+        const updatetransactiondata = {
+          trnId:req.body.trnId,
+          dealer:req.body.dealer,
+          status:1,
+          amountSettled:req.body.amountSettled,
+          trnDate: req.body.trnDate,
+          //modifiedDate:new Date(),
+          dueDate:req.body.duedate,
+          trnStatus:req.body.trnStatus,
+          amountPending:req.body.amountPending,
+          remarks:req.body.remarks,
+          trnDescription:req.body.trnDescription,
+          totalAmount:req.body.totalAmount,
+          supplier:req.body.supplier
+    
+          
+      };
+      const modifiedDate=new Date();
+     // console.log(trnId)
+      //let sql = "UPDATE transactionrecord SET supplier = ?,dealer = ?,status=?,amountPending=?, totalAmount=?, amountSettled=?,trnStatus=?, trnDate=?, modifiedDate=?,dueDate=?,trnDescription=?,remarks=?) values(?) WHERE trnId=?";
+      let sql = "UPDATE transactionrecord SET status="
+      +updatetransactiondata.status+",amountPending="
+      +updatetransactiondata.amountPending+", totalAmount="
+      +updatetransactiondata.totalAmount+", amountSettled="
+      +updatetransactiondata.amountSettled+",trnStatus='"
+      +updatetransactiondata.trnStatus+"', modifiedDate=Now()  WHERE trnId='"
+      +updatetransactiondata.trnId+"'";      
+    
+     // +"`, modifiedDate=`"+updatetransactiondata.modifiedDate+"',duedate='"+updatetransactiondata.dueDate+"',trnDescription='"+updatetransactiondata.trnDescription+"',remarks='"+updatetransactiondata.remarks+"'
+      connection.query(sql, function (err,result){
+            if(err){
+              console.log(err)
+              res.json({state:false,msg:"data not updated"})
+            }
+            else{
+              res.json({state:true,msg:"data updated"});
+              console.log("transaction updated")
+
+       
+        }
         
-    connection.query("UPDATE transactionrecord SET status=0 where trnId= ?",[trnId],function (err,results, fields) {
-  
-          });
+      });
+      
           
  
         });
+
+        router.post('/delete',function (req,res) {
+          
+                var trnId=req.body.trnId;
+        
+                
+            connection.query("UPDATE transactionrecord SET status=0 where trnId= ?",[trnId],function (err,results, fields) {
+          
+                  });
+                  
+         
+                });
      
 
 
-
-
-
 module.exports = router;
-
-
