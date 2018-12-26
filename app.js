@@ -321,7 +321,7 @@ job.start();
                 //console.log(dealername);
   
                 const data = {
-                  dueDate:results[result].dueDate,
+                  dueDate:results[result].duedate,
                   notificationId:uuid,
                   trnId:results[result].trnId,
                   supplier:results[result].supplier,
