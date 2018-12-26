@@ -22,7 +22,7 @@ router.get('/profile',verifyToken, (req,res)=>{
     if(token!=null){
       var userId = util.getUserIdFromToken(token)
     }
-    connection.query("select u.*,a.* from user u join UserAttributes a on u.userId = a.User_userId where userId= ?",[userId],function (err,results, fields) {
+    connection.query("select u.*,a.* from user u join UserAttributes a on u.userId = a.User_userId where userId= ? ",[userId],function (err,results, fields) {
       if(results){
         res.json({user:results[0]});
   

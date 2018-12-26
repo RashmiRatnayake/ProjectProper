@@ -22,7 +22,7 @@ router.get('/messages',verifyToken, (req,res)=>{
   if(token!=null){
     var userId = util.getUserIdFromToken(token)
   }
-  connection.query("select * from transactionrecord where dealer= ? OR supplier= ?",[userId,userId],function (err,results, fields) {
+  connection.query("select * from transactionrecord where dealer= ? OR supplier= ? AND status>0",[userId,userId],function (err,results, fields) {
     if(results){
       //console.log(results);
       res.json({message:results});

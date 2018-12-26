@@ -57,7 +57,7 @@ app.listen(port);
     const job = new CronJob('0 0 */24 * * *', function() {//proper one
     const d = new Date();
    
-    connection.query("select * from transactionrecord where duedate=DATE(?) AND (trnStatus='Unpaid' or trnStatus='partially paid') ",[d],function (err,results, fields) { 
+    connection.query("select * from transactionrecord where duedate=DATE(?) AND (trnStatus='Unpaid' or trnStatus='partially paid') AND status>0",[d],function (err,results, fields) { 
      if(results){
           console.log("duetoday");
          // console.log(results);
@@ -175,7 +175,7 @@ job.start();
     const job2 = new CronJob('0 1 */24 * * *', function() {//proper one
       const d = new Date();
      
-      connection.query("select * from transactionrecord where duedate=DATE_ADD(DATE(?), INTERVAL 3 DAY) AND (trnStatus='Unpaid' or trnStatus='partially paid') ",[d],function (err,results, fields) { 
+      connection.query("select * from transactionrecord where duedate=DATE_ADD(DATE(?), INTERVAL 3 DAY) AND (trnStatus='Unpaid' or trnStatus='partially paid') AND status>0 ",[d],function (err,results, fields) { 
        if(results){
             console.log("due in 3 days");
            // console.log(results);
@@ -294,7 +294,7 @@ job.start();
     const job3 = new CronJob('0 2 */24 * * *', function() {//proper one
    const d = new Date();
      console.log("cronjob3")
-      connection.query("select * from transactionrecord where duedate<(DATE(NOW())) AND (trnStatus='Unpaid' or trnStatus='partially paid') ",function (err,results, fields) { 
+      connection.query("select * from transactionrecord where duedate<(DATE(NOW())) AND (trnStatus='Unpaid' or trnStatus='partially paid') AND status>0 ",function (err,results, fields) { 
        if(results){
             console.log("due late");
            // console.log(results);

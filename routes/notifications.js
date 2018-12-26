@@ -25,7 +25,7 @@ process.env.SECRET_KEY="secret_key";
             var userId = util.getUserIdFromToken(token)
           
           var day=new Date();
-          connection.query("select * from notification where (supplier=? OR dealer= ?) AND due='in 3 days' AND DATE(dateToday)=DATE(?)",[userId,userId,day],function (err,results, fields) {
+          connection.query("select * from notification where (supplier=? OR dealer= ?) AND due='in 3 days' AND DATE(dateToday)=DATE(?) AND status>0",[userId,userId,day],function (err,results, fields) {
             if(results){
                 //console.log("due in 3 days")
                 //console.log(results);
@@ -48,7 +48,7 @@ process.env.SECRET_KEY="secret_key";
               
               var day=new Date();
               //console.log(day);
-              connection.query("select * from notification where (supplier=? OR dealer= ?) AND due='today' AND DATE(dateToday)=DATE(?)",[userId,userId,day],function (err,resul, fields) {
+              connection.query("select * from notification where (supplier=? OR dealer= ?) AND due='today' AND DATE(dateToday)=DATE(?) AND status>0",[userId,userId,day],function (err,resul, fields) {
                 if(resul){
                     //console.log("due today")
                     console.log(resul);
@@ -72,7 +72,7 @@ process.env.SECRET_KEY="secret_key";
                   
                   var day=new Date();
                   //console.log(day);
-                  connection.query("select * from notification where (supplier=? OR dealer= ?) AND due='late' AND DATE(dateToday)=DATE(?)",[userId,userId,day],function (err,result, fields) {
+                  connection.query("select * from notification where (supplier=? OR dealer= ?) AND due='late' AND DATE(dateToday)=DATE(?) AND status>0",[userId,userId,day],function (err,result, fields) {
                     if(result){
                         console.log("late")
                         console.log(result);

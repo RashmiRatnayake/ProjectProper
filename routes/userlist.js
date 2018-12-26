@@ -27,7 +27,7 @@ router.get('/userlist',verifyToken, (req,res)=>{
   }
   if (userType=="Supplier"){
     var dealer="Dealer";
-    connection.query("SELECT userId, businessName FROM user u JOIN userattributes a ON u.userId = a.User_userId AND userType = ?",dealer,function (err,results, fields) {
+    connection.query("SELECT userId, businessName FROM user u JOIN userattributes a ON u.userId = a.User_userId AND userType = ? WHERE u.status>0",dealer,function (err,results, fields) {
         if(results){
         //console.log(results);
         res.json({userlist:results});
@@ -38,7 +38,7 @@ router.get('/userlist',verifyToken, (req,res)=>{
   }
   else{
     var supplier="Supplier";
-    connection.query("SELECT userId, businessName FROM user u JOIN userattributes a ON u.userId = a.User_userId AND userType = ?",supplier,function (err,results, fields) {
+    connection.query("SELECT userId, businessName FROM user u JOIN userattributes a ON u.userId = a.User_userId AND userType = ? WHERE u.status>0",supplier,function (err,results, fields) {
         if(results){
         //console.log(results);
         res.json({userlist:results});

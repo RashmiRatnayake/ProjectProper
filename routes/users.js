@@ -67,7 +67,7 @@ router.post('/login',function (req,res) {
   
   var email = req.body.inputEmail;
   var password = req.body.inputPassword;
-  connection.query("select u.*,a.businessName from user u join UserAttributes a on u.userId = a.User_userId where email= ?",[email],function (err,results, fields) {
+  connection.query("select u.*,a.businessName from user u join UserAttributes a on u.userId = a.User_userId where email= ? AND u.status>0",[email],function (err,results, fields) {
 
     if(results){
       if (results[0]==undefined){
@@ -121,7 +121,7 @@ router.get('/profile',verifyToken, (req,res)=>{
     var userId = util.getUserIdFromToken(token);
   }
 
-  connection.query("select u.*,a.* from user u join UserAttributes a on u.userId = a.User_userId where userId= ?",[userId],function (err,results, fields) {
+  connection.query("select u.*,a.* from user u join UserAttributes a on u.userId = a.User_userId where userId= ? AND  u.status>0",[userId],function (err,results, fields) {
       
     if(results){
       var user={

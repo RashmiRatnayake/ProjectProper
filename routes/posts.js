@@ -22,7 +22,7 @@ router.get('/my-posts',verifyToken, (req,res)=>{
       if(token!=null){
         var userId = util.getUserIdFromToken(token)
       }
-      connection.query("select u.*,p.* from user u join post p on u.userId = p.postedBy where userId= ?",[userId],function (err,results, fields) {
+      connection.query("select u.*,p.* from user u join post p on u.userId = p.postedBy where userId= ? AND p.status>0 AND u.status>0",[userId],function (err,results, fields) {
         if(results){
             //console.log(results);
           res.json({post:results});
