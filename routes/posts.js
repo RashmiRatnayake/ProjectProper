@@ -74,6 +74,25 @@ router.get('/my-posts',verifyToken, (req,res)=>{
             
             });
          
-
+            router.post('/deletepost',function (req,res) {
+              
+                    const postId=req.body.postId;
+            
+                    console.log("postid:",postId)
+                connection.query("UPDATE post SET status=0 where postId= ?",[postId],function (err,results, fields) {
+                  if(err){
+                    console.log(err)
+                    res.json({state:false,msg:"post not deleted"})
+                  }
+                  else{
+                    res.json({state:true,msg:"post deleted"});
+      
+             
+                }
+                      });
+                      
+             
+                    });
+         
 
 module.exports = router;
