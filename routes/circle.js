@@ -22,7 +22,7 @@ router.get('/my-circle',verifyToken, (req,res)=>{
   if(token!=null){
     var userId = util.getUserIdFromToken(token)
   }
-  connection.query("SELECT subscribeto, businessName FROM subscription S JOIN userattributes U ON S.subscribeto = U.User_userId AND subscriber = ? WHERE S.status>0",userId,function (err,results, fields) {
+  connection.query("SELECT * FROM subscription S JOIN userattributes U ON S.subscribeto = U.User_userId AND subscriber = ? WHERE S.status>0",userId,function (err,results, fields) {
     if(results){
       //console.log(results);
     
@@ -33,7 +33,18 @@ router.get('/my-circle',verifyToken, (req,res)=>{
 });
 });
 
+router.post('/remove',function (req,res) {
+  
+        const subscriptionId=req.body.subscriptionId;
 
+        
+    connection.query("UPDATE subscription SET status=0 where subscriptionId= ?",[subscriptionId],function (err,results, fields) {
+  
+      
+    });
+          
+ 
+        });
 
 
 

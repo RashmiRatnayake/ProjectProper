@@ -10,7 +10,7 @@ var token;
 var verifyToken = require('../config/verifyToken')
 var headerUtil = require('../util/headerUtil')
 var util = require('../util/util')
-
+var uuid = require('../routes/uuid');
 router.use(cors());
 
 process.env.SECRET_KEY="secret_key";
@@ -22,7 +22,7 @@ router.get('/my-posts',verifyToken, (req,res)=>{
       if(token!=null){
         var userId = util.getUserIdFromToken(token)
       }
-      connection.query("select u.*,p.* from user u join post p on u.userId = p.postedBy where userId= ? AND p.status>0 AND u.status>0",[userId],function (err,results, fields) {
+      connection.query("select u.*,p.* from user u join post p on u.userId = p.postedBy where userId= ? AND p.status>0 AND u.status>0 ORDER BY postDate DESC",[userId],function (err,results, fields) {
         if(results){
             //console.log(results);
           res.json({post:results});
@@ -33,7 +33,47 @@ router.get('/my-posts',verifyToken, (req,res)=>{
     });
 
 
-
+    router.post('/newpost', function (req,res) {
+      
+      
+        
+        const newpostdata = {
+            postId:uuid,
+            postedBy:req.body.postedBy,
+            status:1,
+            postContent:req.body.postContent,
+            title:req.body.title,
+            postDate:new Date(),
+            
+      
+      
+        };
+        console.log(newpostdata);
+            
+        
+            let sql = "INSERT INTO post(postId,postedBy,status,postContent,title,postDate) values(?)"
+            let vals = [newpostdata.postId,newpostdata.postedBy,newpostdata.status,newpostdata.postContent,newpostdata.title,newpostdata.postDate]
+      
+            connection.query(sql,[vals], function (err,result){
+                  if(err){
+                    console.log(err)
+                    res.json({state:false,msg:"post not inserted"})
+                  }
+                  else{
+                    res.json({state:true,msg:"post inserted"});
+      
+             
+                }
+              
+            });
+      
+        
+      
+      
+             
+            
+            });
+         
 
 
 module.exports = router;

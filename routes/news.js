@@ -22,7 +22,7 @@ router.get('/news',verifyToken, (req,res)=>{
   if(token!=null){
     var userId = util.getUserIdFromToken(token)
   }
-  connection.query("select * from subscription s join post p on s.subscribeto = p.postedby  where s.subscriber= ? AND p.status>0 AND s.status>0",[userId,userId],function (err,results, fields) {
+  connection.query("select * from subscription s join post p on s.subscribeto = p.postedby join userattributes a on s.subscribeto=a.User_userId where s.subscriber=? AND p.status>0 AND s.status>0 ORDER BY p.postDate DESC",[userId],function (err,results, fields) {
     if(results){
       //console.log(results);
       res.json({news:results});

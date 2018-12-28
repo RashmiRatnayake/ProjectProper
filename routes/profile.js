@@ -32,7 +32,62 @@ router.get('/profile',verifyToken, (req,res)=>{
   });
 
 
-
+  router.post('/editInfo',function (req,res) {
+    console.log(req.body)
+          //var trnId=req.body.trnId;
+          const editinfo = {
+            userId:req.body.userId,
+            businessName:req.body.businessName,
+            status:1,
+            businessAddress:req.body.businessAddress,
+            tagline: req.body.tagline,
+            //modifiedDate:new Date(),
+            contactName:req.body.contactName,
+            contactNo:req.body.contactNo,
+            contactEmail:req.body.contactEmail,
+            description:req.body.description,
+            bank:req.body.bank,
+            accountName:req.body.accountName,
+            accountNo:req.body.accountNo
+            
+      
+            
+        };
+        //const modifiedDate=new Date();
+       // console.log(trnId)
+        //let sql = "UPDATE transactionrecord SET supplier = ?,dealer = ?,status=?,amountPending=?, totalAmount=?, amountSettled=?,trnStatus=?, trnDate=?, modifiedDate=?,dueDate=?,trnDescription=?,remarks=?) values(?) WHERE trnId=?";
+        let sql = "UPDATE userAttributes SET businessName='"
+        +editinfo.businessName+"', businessAddress='"
+        +editinfo.businessAddress+"', bank='"
+        +editinfo.bank+"', accountName='"
+        +editinfo.accountName+"', accountNo='"
+        +editinfo.accountNo+"',tagline='"
+        +editinfo.tagline+"',contactName='"
+        +editinfo.contactName+"',contactEmail='"
+        +editinfo.contactEmail+"',contactNo="
+        +editinfo.contactNo+", description='"
+        +editinfo.description+"', modifiedDate=Now()  WHERE User_userid='"
+        +editinfo.userId+"'";      
+      
+       // +"`, modifiedDate=`"+updatetransactiondata.modifiedDate+"',duedate='"+updatetransactiondata.dueDate+"',trnDescription='"+updatetransactiondata.trnDescription+"',remarks='"+updatetransactiondata.remarks+"'
+        connection.query(sql, function (err,result){
+              if(err){
+                console.log(err)
+                res.json({state:false,msg:"data not updated"})
+              }
+              else{
+                res.json({state:true,msg:"data updated"});
+                console.log("information updated")
+  
+         
+          }
+          
+        });
+        
+            
+   
+          });
+  
 
 
 module.exports = router;

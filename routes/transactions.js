@@ -22,8 +22,10 @@ router.get('/my-transactions',verifyToken, (req,res)=>{
   var token = headerUtil.extractTokenFromHeader(req)
   if(token!=null){
     var userId = util.getUserIdFromToken(token)
+    var userType= util.getUserTypeFromToken(token)
   }
-  connection.query("select * from transactionrecord where dealer= ? OR supplier= ? AND status>0 ORDER BY CASE trnStatus WHEN 'Unpaid' THEN 1 WHEN 'partially paid' THEN 2 ELSE 3 END ",[userId,userId],function (err,results, fields) {
+  if(userType="Dealer"){
+  connection.query("select * from transactionrecord t JOIN userattributes a on t.supplier=a.User_userid  where t.dealer= ? OR t.supplier= ? AND t.status>0 ORDER BY CASE trnStatus WHEN 'Unpaid' THEN 1 WHEN 'partially paid' THEN 2 ELSE 3 END ",[userId,userId],function (err,results, fields) {
     if(results){
       //console.log(results);
       res.json({transaction:results});
@@ -31,6 +33,17 @@ router.get('/my-transactions',verifyToken, (req,res)=>{
   }
 
 });
+  }
+  else if(userType="Supplier"){
+    connection.query("select * from transactionrecord t JOIN userattributes a on t.dealer=a.User_userid  where t.dealer= ? OR t.supplier= ? AND t.status>0 ORDER BY CASE trnStatus WHEN 'Unpaid' THEN 1 WHEN 'partially paid' THEN 2 ELSE 3 END ",[userId,userId],function (err,results, fields) {
+      if(results){
+        //console.log(results);
+        res.json({transaction:results});
+  
+    }
+  
+  });
+    }
 });
 
 router.get('/mypendingtransactions',verifyToken, (req,res)=>{
@@ -38,15 +51,28 @@ router.get('/mypendingtransactions',verifyToken, (req,res)=>{
     var token = headerUtil.extractTokenFromHeader(req)
     if(token!=null){
       var userId = util.getUserIdFromToken(token)
+      var userType=util.getUserTypeFromToken(token)
     }
-    connection.query("select * from transactionrecord where (dealer= ? OR supplier= ?) AND (trnStatus='Unpaid' or trnStatus='partially paid') AND status>0 ORDER BY CASE trnStatus WHEN 'Unpaid' THEN 1 ELSE 2 END",[userId,userId],function (err,results, fields) {
+    if (userType="Dealer"){
+    connection.query("select * from transactionrecord t JOIN userattributes a on t.supplier=a.User_userid where  (t.dealer= ? OR t.supplier= ?) AND (t.trnStatus='Unpaid' or t.trnStatus='partially paid') AND t.status>0 ORDER BY CASE t.trnStatus WHEN 'Unpaid' THEN 1 ELSE 2 END",[userId,userId],function (err,results, fields) {
       if(results){
-        //console.log(results);
+        console.log(results);
         res.json({pendingtransaction:results});
   
     }
   
   });
+}
+else if (userType="Supplier"){
+  connection.query("select * from transactionrecord t JOIN userattributes a on t.dealer=a.User_userid  where (t.dealer= ? OR t.supplier= ?) AND (t.trnStatus='Unpaid' or t.trnStatus='partially paid') AND t.status>0 ORDER BY CASE t.trnStatus WHEN 'Unpaid' THEN 1 ELSE 2 END ",[userId,userId],function (err,results, fields) {
+    if(results){
+      //console.log(results);
+      res.json({pendingtransaction:results});
+
+  }
+
+});
+  }
   });
 
   router.get('/viewHistory',verifyToken, (req,res)=>{
@@ -103,7 +129,7 @@ router.post('/addnew',function (req,res) {
       let sql = "INSERT INTO transactionrecord (trnId,supplier,dealer,status,amountPending, totalAmount, amountSettled,trnStatus, trnDate, modifiedDate,dueDate,trnDescription,remarks) values(?)"
       let vals = [newtransactiondata.trnId,newtransactiondata.supplier,dealer,newtransactiondata.status,newtransactiondata.amountPending,newtransactiondata.totalAmount,newtransactiondata.amountSettled,newtransactiondata.trnStatus,newtransactiondata.trnDate,newtransactiondata.modifiedDate,newtransactiondata.dueDate,newtransactiondata.trnDescription,newtransactiondata.remarks]
 
-      connection.query(sql,[vals,], function (err,result){
+      connection.query(sql,[vals], function (err,result){
             if(err){
               res.json({state:false,msg:"data not inserted"})
             }
@@ -176,7 +202,7 @@ router.post('/update',function (req,res) {
 
         router.post('/delete',function (req,res) {
           
-                var trnId=req.body.trnId;
+                const trnId=req.body.trnId;
         
                 
             connection.query("UPDATE transactionrecord SET status=0 where trnId= ?",[trnId],function (err,results, fields) {
