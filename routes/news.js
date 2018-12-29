@@ -27,13 +27,10 @@ router.get('/news',verifyToken, (req,res)=>{
       //console.log(results);
       res.json({news:results});
 
-  }
+    }
 
+  });
 });
-});
-
-
-
 
 
 module.exports = router;

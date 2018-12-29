@@ -15,80 +15,72 @@ router.use(cors());
 
 process.env.SECRET_KEY="secret_key";
 
-
-
-
-    router.get('/my-notifications-in3days',verifyToken, (req,res)=>{
+router.get('/my-notifications-in3days',verifyToken, (req,res)=>{
         
-          var token = headerUtil.extractTokenFromHeader(req)
-          if(token!=null){
-            var userId = util.getUserIdFromToken(token)
+  var token = headerUtil.extractTokenFromHeader(req)
+  if(token!=null){
+    var userId = util.getUserIdFromToken(token)
           
-          var day=new Date();
-          connection.query("select * from notification where (supplier=? OR dealer= ?) AND due='in 3 days' AND DATE(dateToday)=DATE(?) AND status>0",[userId,userId,day],function (err,results, fields) {
-            if(results){
-                //console.log("due in 3 days")
-                //console.log(results);
+    var day=new Date();
+    connection.query("select * from notification where (supplier=? OR dealer= ?) AND due='in 3 days' AND DATE(dateToday)=DATE(?) AND status>0",[userId,userId,day],function (err,results, fields) {
+      if(results){
+        //console.log("due in 3 days")
+        //console.log(results);
     
-              res.json({notificationIn3Days:results});
+        res.json({notificationIn3Days:results});
         
-            }
+      }
         
-        });
-    }
-        });
+    });
+  }
+});
 
-        router.get('/my-notifications-today',verifyToken, (req,res)=>{
+router.get('/my-notifications-today',verifyToken, (req,res)=>{
             
-              var token = headerUtil.extractTokenFromHeader(req)
-              //console.log("token is",token)
-              if(token!=null){
-                var userId = util.getUserIdFromToken(token)
-                console.log("userID is",userId)
+  var token = headerUtil.extractTokenFromHeader(req)
+  //console.log("token is",token)
+  if(token!=null){
+    var userId = util.getUserIdFromToken(token)
+    //console.log("userID is",userId)
               
-              var day=new Date();
-              //console.log(day);
-              connection.query("select * from notification where (supplier=? OR dealer= ?) AND due='today' AND DATE(dateToday)=DATE(?) AND status>0",[userId,userId,day],function (err,resul, fields) {
-                if(resul){
-                    //console.log("due today")
-                    console.log(resul);
+    var day=new Date();
+    
+    connection.query("select * from notification where (supplier=? OR dealer= ?) AND due='today' AND DATE(dateToday)=DATE(?) AND status>0",[userId,userId,day],function (err,resul, fields) {
+      if(resul){
+        //console.log("due today")
+        //console.log(resul);
         
-                  res.json({notificationToday:resul});
+        res.json({notificationToday:resul});
             
-                }
+      }
             
-            });
-             }
-            });
+    });
+  }
+});
 
 
-            router.get('/my-notifications-late',verifyToken, (req,res)=>{
+router.get('/my-notifications-late',verifyToken, (req,res)=>{
                 
-                  var token = headerUtil.extractTokenFromHeader(req)
-                  //console.log("token is",token)
-                  if(token!=null){
-                    var userId = util.getUserIdFromToken(token)
-                    //console.log("userID is",userId)
+  var token = headerUtil.extractTokenFromHeader(req)
+  //console.log("token is",token)
+  if(token!=null){
+    var userId = util.getUserIdFromToken(token)
+    //console.log("userID is",userId)
                   
-                  var day=new Date();
-                  //console.log(day);
-                  connection.query("select * from notification where (supplier=? OR dealer= ?) AND due='late' AND DATE(dateToday)=DATE(?) AND status>0",[userId,userId,day],function (err,result, fields) {
-                    if(result){
-                        console.log("late")
-                        console.log(result);
+    var day=new Date();
+    //console.log(day);
+    connection.query("select * from notification where (supplier=? OR dealer= ?) AND due='late' AND DATE(dateToday)=DATE(?) AND status>0",[userId,userId,day],function (err,result, fields) {
+      if(result){
+        //console.log("late")
+        console.log(result);
             
-                      res.json({notificationLate:result});
+        res.json({notificationLate:result});
                 
-                    }
+      }
                 
-                });
-                 }
-                });
-
-
-
-
-
+    });
+  }
+});
 
 
 module.exports = router;

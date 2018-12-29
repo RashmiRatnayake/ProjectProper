@@ -78,7 +78,7 @@ router.post('/subscribe',function (req,res) {
         
             
    
-          });
+});
 
 
 

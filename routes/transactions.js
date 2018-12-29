@@ -25,14 +25,14 @@ router.get('/my-transactions',verifyToken, (req,res)=>{
     var userType= util.getUserTypeFromToken(token)
   }
   if(userType="Dealer"){
-  connection.query("select * from transactionrecord t JOIN userattributes a on t.supplier=a.User_userid  where t.dealer= ? OR t.supplier= ? AND t.status>0 ORDER BY CASE trnStatus WHEN 'Unpaid' THEN 1 WHEN 'partially paid' THEN 2 ELSE 3 END ",[userId,userId],function (err,results, fields) {
-    if(results){
-      //console.log(results);
-      res.json({transaction:results});
+    connection.query("select * from transactionrecord t JOIN userattributes a on t.supplier=a.User_userid  where t.dealer= ? OR t.supplier= ? AND t.status>0 ORDER BY CASE trnStatus WHEN 'Unpaid' THEN 1 WHEN 'partially paid' THEN 2 ELSE 3 END ",[userId,userId],function (err,results, fields) {
+      if(results){
+        //console.log(results);
+        res.json({transaction:results});
 
-  }
+      }
 
-});
+    });
   }
   else if(userType="Supplier"){
     connection.query("select * from transactionrecord t JOIN userattributes a on t.dealer=a.User_userid  where t.dealer= ? OR t.supplier= ? AND t.status>0 ORDER BY CASE trnStatus WHEN 'Unpaid' THEN 1 WHEN 'partially paid' THEN 2 ELSE 3 END ",[userId,userId],function (err,results, fields) {
@@ -40,10 +40,10 @@ router.get('/my-transactions',verifyToken, (req,res)=>{
         //console.log(results);
         res.json({transaction:results});
   
-    }
+      }
   
-  });
-    }
+    });
+  }
 });
 
 router.get('/mypendingtransactions',verifyToken, (req,res)=>{
@@ -54,25 +54,25 @@ router.get('/mypendingtransactions',verifyToken, (req,res)=>{
       var userType=util.getUserTypeFromToken(token)
     }
     if (userType="Dealer"){
-    connection.query("select * from transactionrecord t JOIN userattributes a on t.supplier=a.User_userid where  (t.dealer= ? OR t.supplier= ?) AND (t.trnStatus='Unpaid' or t.trnStatus='partially paid') AND t.status>0 ORDER BY CASE t.trnStatus WHEN 'Unpaid' THEN 1 ELSE 2 END",[userId,userId],function (err,results, fields) {
-      if(results){
-        console.log(results);
-        res.json({pendingtransaction:results});
+      connection.query("select * from transactionrecord t JOIN userattributes a on t.supplier=a.User_userid where  (t.dealer= ? OR t.supplier= ?) AND (t.trnStatus='Unpaid' or t.trnStatus='partially paid') AND t.status>0 ORDER BY CASE t.trnStatus WHEN 'Unpaid' THEN 1 ELSE 2 END",[userId,userId],function (err,results, fields) {
+        if(results){
+          console.log(results);
+          res.json({pendingtransaction:results});
   
+        }
+  
+      });
     }
-  
-  });
-}
-else if (userType="Supplier"){
-  connection.query("select * from transactionrecord t JOIN userattributes a on t.dealer=a.User_userid  where (t.dealer= ? OR t.supplier= ?) AND (t.trnStatus='Unpaid' or t.trnStatus='partially paid') AND t.status>0 ORDER BY CASE t.trnStatus WHEN 'Unpaid' THEN 1 ELSE 2 END ",[userId,userId],function (err,results, fields) {
-    if(results){
-      //console.log(results);
-      res.json({pendingtransaction:results});
+    else if (userType="Supplier"){
+      connection.query("select * from transactionrecord t JOIN userattributes a on t.dealer=a.User_userid  where (t.dealer= ? OR t.supplier= ?) AND (t.trnStatus='Unpaid' or t.trnStatus='partially paid') AND t.status>0 ORDER BY CASE t.trnStatus WHEN 'Unpaid' THEN 1 ELSE 2 END ",[userId,userId],function (err,results, fields) {
+       if(results){
+          //console.log(results);
+          res.json({pendingtransaction:results});
 
-  }
+        } 
 
-});
-  }
+      });
+    }
   });
 
   router.get('/viewHistory',verifyToken, (req,res)=>{
@@ -95,7 +95,7 @@ else if (userType="Supplier"){
       }
     
     });
-    });
+});
 
 router.post('/addnew',function (req,res) {
 
@@ -152,14 +152,13 @@ router.post('/addnew',function (req,res) {
       
 router.post('/update',function (req,res) {
   console.log(req.body)
-        //var trnId=req.body.trnId;
+        
         const updatetransactiondata = {
           trnId:req.body.trnId,
           dealer:req.body.dealer,
           status:1,
           amountSettled:req.body.amountSettled,
           trnDate: req.body.trnDate,
-          //modifiedDate:new Date(),
           dueDate:req.body.duedate,
           trnStatus:req.body.trnStatus,
           amountPending:req.body.amountPending,
@@ -171,8 +170,7 @@ router.post('/update',function (req,res) {
           
       };
       const modifiedDate=new Date();
-     // console.log(trnId)
-      //let sql = "UPDATE transactionrecord SET supplier = ?,dealer = ?,status=?,amountPending=?, totalAmount=?, amountSettled=?,trnStatus=?, trnDate=?, modifiedDate=?,dueDate=?,trnDescription=?,remarks=?) values(?) WHERE trnId=?";
+ 
       let sql = "UPDATE transactionrecord SET status="
       +updatetransactiondata.status+",amountPending="
       +updatetransactiondata.amountPending+", totalAmount="
@@ -181,7 +179,7 @@ router.post('/update',function (req,res) {
       +updatetransactiondata.trnStatus+"', modifiedDate=Now()  WHERE trnId='"
       +updatetransactiondata.trnId+"'";      
     
-     // +"`, modifiedDate=`"+updatetransactiondata.modifiedDate+"',duedate='"+updatetransactiondata.dueDate+"',trnDescription='"+updatetransactiondata.trnDescription+"',remarks='"+updatetransactiondata.remarks+"'
+    
       connection.query(sql, function (err,result){
             if(err){
               console.log(err)
@@ -196,21 +194,15 @@ router.post('/update',function (req,res) {
         
       });
       
-          
- 
-        });
+});
 
-        router.post('/delete',function (req,res) {
+router.post('/delete',function (req,res) {
           
-                const trnId=req.body.trnId;
-        
-                
-            connection.query("UPDATE transactionrecord SET status=0 where trnId= ?",[trnId],function (err,results, fields) {
+  const trnId=req.body.trnId;
+  connection.query("UPDATE transactionrecord SET status=0 where trnId= ?",[trnId],function (err,results, fields) {
           
-                  });
-                  
-         
-                });
+  });
+});
      
 
 

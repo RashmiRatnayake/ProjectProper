@@ -24,28 +24,20 @@ router.get('/my-circle',verifyToken, (req,res)=>{
   }
   connection.query("SELECT * FROM subscription S JOIN userattributes U ON S.subscribeto = U.User_userId AND S.subscriber = ? WHERE S.status>0",userId,function (err,results, fields) {
     if(results){
-      //console.log(results);
-    
+      //console.log(results);    
       res.json({circle:results});
       
-  }
+     }
 
-});
+  });
 });
 
 router.post('/remove',function (req,res) {
   
-        const subscriptionId=req.body.subscriptionId;
-
-        
-    connection.query("UPDATE subscription SET status=0 where subscriptionId= ?",[subscriptionId],function (err,results, fields) {
-  
-      
-    });
-          
- 
-        });
-
-
+  const subscriptionId=req.body.subscriptionId;      
+  connection.query("UPDATE subscription SET status=0 where subscriptionId= ?",[subscriptionId],function (err,results, fields) {
+     
+  });           
+});
 
 module.exports = router;

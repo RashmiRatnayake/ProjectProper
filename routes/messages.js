@@ -27,13 +27,10 @@ router.get('/messages',verifyToken, (req,res)=>{
       //console.log(results);
       res.json({message:results});
 
-  }
+    }
 
+  });
 });
-});
-
-
-
 
 
 module.exports = router;
